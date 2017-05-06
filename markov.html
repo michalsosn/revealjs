@@ -1,0 +1,180 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Modele Markowa</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="lib/css/vis.min.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dyskretny łańcuch Markowa
+
+                        Model matematyczny, w którym:
+
+                        System może przyjąć jeden z $N$ stanów
+                        $S = \\{ S_1, S_2, \dots, S_N \\}$
+
+                        Stan systemu w chwili t oznaczamy
+                        $q_t, t = 1, 2, \dots$.
+
+                        Rozkład stanu początkowego $q_1$ oznaczamy jako
+                        $\pi_i = P(q_1 = S_i)$.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dyskretny łańcuch Markowa
+                        **Własność Markowa** - rozkład prawdopodobieństwa stanu łańcucha w następnym kroku zależy tylko od jego obecnego stanu
+
+                        **Jednorodność** - prawdopodobieństwa zmian stanu są niezależne od czasu
+
+                        $P(q\_t = S\_j | q\_{t - 1} = S\_i) = a\_{ij}$
+
+                        Przy tych ograniczeniach prawdopodobieństwa przejść można zapisać w formie macierzy $A$.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład
+
+                        Stany: $S_1$ deszczowo, $S_2$ pochmurnie, $S_3$ słonecznie
+
+                        $A = \begin{bmatrix} 0.4 & 0.3 & 0.3 \\\\ 0.2 & 0.6 & 0.2 \\\\ 0.1 & 0.1 & 0.8 \end{bmatrix}$
+
+                        $\pi = [0, 0, 1]$ (pierwszego dnia słonecznie)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład
+
+                        Jakie jest prawdopodobieństwo, że pogoda w kolejnych pięciu dniach będzie taka: $S\_3, S\_2, S\_2, S\_3, S\_1?$
+
+                        $P(S\_3, S\_2, S\_2, S\_3, S\_1 | (A, \pi))$
+                        $= \pi\_3 \cdot a\_{32} \cdot a\_{22} \cdot a\_{23} \cdot a\_{31}$
+                        $= 1 \cdot 0.1 \cdot 0.6 \cdot 0.2 \cdot 0.1$
+                        $= 0.0012$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        Rozszerzenie poprzedniego modelu
+                        <small>(Zbiór $N$ stanów $S$, stan w czasie $t$ $q_t$, macierz przejść $A$, rozkład stanu początkowego $\pi$)</small>
+
+                        Dodajemy zbiór $M$ obserwacji
+                        $V = {V_1, V_2, \dots, V_M}$.
+
+                        $o_t$ - obserwacja w chwili $t$
+
+                        Prawdopodobieństwo zaobserwowania $V_k$ w stanie $S_j$
+                        $b_j(k) = P(o_t = V_k | q_t = S_j)$
+                        $j = 1, \dots, N, k = 1, \dots, M$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        - Obliczyć prawdopodobieństwo wystąpienia ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm w przód
+                        - Znaleźć najbardziej prawdopodobny ciąg stanów przy danym ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Viterbiego
+                        - Parametry modelu $(A, B, \pi)$ maksymalizujące prawdopodobieństwo wygenerowania danego ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Bauma-Welcha
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład zastosowania
+
+                        ### Problem
+
+                        Mamy zbiór $K$ słów oraz zestaw nagrań, na których ktoś wypowiada po jednym z tych słów.
+
+                        Chcemy stworzyć system do rozpoznawania, które słowo jest wypowiadane na nagraniu.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład zastosowania
+
+                        ### Trening
+
+                        - Tworzymy $K$ ukrytych modeli Markowa, po jednym na słowo.
+                        - Dla każdego z nich dobieramy algorytmem Baum-Welcha parametry, które maksymalizujące prawdopodobieństwo wystąpienia obserwacji z nagrania.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład zastosowania
+
+                        ### Wykorzystanie
+
+                        - Bierzemy testowe nagranie.
+                        - Dla każdego z $K$ dopasowanych modeli liczymy algorytmem w przód prawdopodobieństwo wystąpienia ciągu obserwacji z nagrania.
+                        - Patrzymy, dla którego modelu to prawdopodobieństwo jest największe.
+                        - Uznajemy, że na nagraniu jest to słowo, do którego ten model został wytrenowany.
+                    </script>
+                </section>
+                <section data-markdown>
+                    <script type="text/template">
+                        ## Źródła
+
+                        - A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition, Lawrence R. Rabincer. [Link](http://www.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/tutorial%20on%20hmm%20and%20applications.pdf)
+                        - Machine Learning: An Algorithmic Perspective. Stephen Marsland
+                    </script>
+                </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			// More info about config & dependencies:
+			// - https://github.com/hakimel/reveal.js#configuration
+			// - https://github.com/hakimel/reveal.js#dependencies
+			Reveal.initialize({
+				history: true,
+                anything: [
+                    {
+                        className: "visjs",
+                        defaults: { options: {} },
+                        initialize: (function(container, options) {
+                            container.network = new vis.Network(
+                                container, { nodes: new vis.DataSet(options.nodes), edges: new vis.DataSet(options.edges) }, options.options || {}
+                            );
+                        })
+                    },
+                ],
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true, mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' },
+                    { src: 'plugin/anything/anything.js' },
+                    { src: 'lib/js/vis.min.js' },
+				]
+			});
+		</script>
+	</body>
+</html>
