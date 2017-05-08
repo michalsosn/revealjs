@@ -26,7 +26,7 @@
 			<div class="slides">
 				<section data-markdown>
                     <script type="text/template">
-                        ## Dyskretny łańcuch Markowa
+                        ## Dyskretne modele Markowa
 
                         Model matematyczny, w którym:
 
@@ -42,7 +42,8 @@
                 </section>
 				<section data-markdown>
                     <script type="text/template">
-                        ## Dyskretny łańcuch Markowa
+                        ## Dyskretne modele Markowa
+
                         **Własność Markowa** - rozkład prawdopodobieństwa stanu łańcucha w następnym kroku zależy tylko od jego obecnego stanu
 
                         **Jednorodność** - prawdopodobieństwa zmian stanu są niezależne od czasu
@@ -77,7 +78,7 @@
                 </section>
 				<section data-markdown>
                     <script type="text/template">
-                        ## Ukryte modele Markowa
+                        ## Ukryty model Markowa
 
                         Rozszerzenie poprzedniego modelu
                         <small>(Zbiór $N$ stanów $S$, stan w czasie $t$ $q_t$, macierz przejść $A$, rozkład stanu początkowego $\pi$)</small>
@@ -98,7 +99,7 @@
 
                         - Obliczyć prawdopodobieństwo wystąpienia ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm w przód
                         - Znaleźć najbardziej prawdopodobny ciąg stanów przy danym ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Viterbiego
-                        - Parametry modelu $(A, B, \pi)$ maksymalizujące prawdopodobieństwo wygenerowania danego ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Bauma-Welcha
+                        - Znaleźć parametry modelu $(A, B, \pi)$ maksymalizujące prawdopodobieństwo wygenerowania danego ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Bauma-Welcha
                     </script>
                 </section>
 				<section data-markdown>
@@ -116,10 +117,10 @@
                     <script type="text/template">
                         ## Przykład zastosowania
 
-                        ### Trening
+                        ### Nauka
 
                         - Tworzymy $K$ ukrytych modeli Markowa, po jednym na słowo.
-                        - Dla każdego z nich dobieramy algorytmem Baum-Welcha parametry, które maksymalizujące prawdopodobieństwo wystąpienia obserwacji z nagrania.
+                        - Dla każdego z nich dobieramy algorytmem Baum-Welcha parametry, maksymalizujące prawdopodobieństwo wystąpienia obserwacji z nagrania.
                     </script>
                 </section>
 				<section data-markdown>
@@ -130,16 +131,17 @@
 
                         - Bierzemy testowe nagranie.
                         - Dla każdego z $K$ dopasowanych modeli liczymy algorytmem w przód prawdopodobieństwo wystąpienia ciągu obserwacji z nagrania.
-                        - Patrzymy, dla którego modelu to prawdopodobieństwo jest największe.
-                        - Uznajemy, że na nagraniu jest to słowo, do którego ten model został wytrenowany.
+                        - Znajdujemy model, dla którego to prawdopodobieństwo jest największe.
+                        - Klasyfikujemy nagranie jako słowo, do którego wytrenowany został wybrany model.
                     </script>
                 </section>
                 <section data-markdown>
                     <script type="text/template">
                         ## Źródła
 
-                        - A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition, Lawrence R. Rabincer. [Link](http://www.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/tutorial%20on%20hmm%20and%20applications.pdf)
+                        - A Tutorial on Hidden Markov Models and Selected Applications in Speech Recognition. Lawrence R. Rabiner [Link](http://www.ece.ucsb.edu/Faculty/Rabiner/ece259/Reprints/tutorial%20on%20hmm%20and%20applications.pdf)
                         - Machine Learning: An Algorithmic Perspective. Stephen Marsland
+                        - Hidden Markov Models. Tapas Kanungo
                     </script>
                 </section>
 			</div>
