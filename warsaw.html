@@ -4,13 +4,13 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+		<title>Droga do Warszawy</title>
 
 		<link rel="stylesheet" href="css/reveal.css">
 		<link rel="stylesheet" href="css/theme/white.css">
 
 		<!-- Theme used for syntax highlighting of code -->
-		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="lib/css/tomorrow.css">
 		<link rel="stylesheet" href="lib/css/vis.min.css">
 
 		<!-- Printing and PDF exports -->
@@ -25,8 +25,141 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Graf miast
+
+                        Warunki:
+
+                        - Tylko autostrady
+                        - Przynajmniej dwa miasta o populacji ponad 400 000
+                        - Miasto w innej części Polski (północ/południe, wschód/zachód)
+
+                        Rozwiązanie: 
+                        
+                        [_Google Maps API_](https://developers.google.com/maps/) (Distance Matrix i Geocoding)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Tylko autostrady
+
+                        - Pobranie z _Distance Matrix API_ odległości $49 \times 49$
+                        - Pobranie drugiej macierzy z opcją _avoid=highways_
+                        - Tylko autostrady - zachowujemy połączenia, gdzie odległości z pominięciem autostrad są inne.
+                        - Tylko bezpośrednie - usuwamy $A \to B$ jeżeli istnieje $C$, że $d(A, C) + d(C, B) < 1.2 d(A, B)$
+
+                        Zostało 256 połączeń! (rysunek później)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Populacja ponad 400 000
+
+                        Uznajemy, że przejście przez Warszawę nie wypełnia tego warunku.
+                        <small>
+                        <table>
+                            <tr><th>Miasto</th><th>[Populacja](https://pl.wikipedia.org/wiki/Miasta_w_Polsce)</th></tr>
+                            <tr><td>Warszawa</td><td>1 748 916</td></tr>
+                            <tr><td>Kraków</td><td>762 448</td></tr>
+                            <tr><td>Łódź</td><td>698 688</td></tr>
+                            <tr><td>Wrocław</td><td>637 075</td></tr>
+                            <tr><td>Poznań</td><td>541 561</td></tr>
+                            <tr><td>Gdańsk</td><td>462 996</td></tr>
+                            <tr><td>Szczecin</td><td>405 413</td></tr>
+                        </table>
+                        </small>
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Inna część Polski
+
+                        - Centrum Polski - N$51.9194^\circ$ E$19.1451^\circ$
+                        - Korzystając z _Geocoding API_ dla każdego miasta uzyskałem współrzędne geograficzne.
+                        - Jeżeli $\Delta \lambda > \Delta \phi$, to miasto leży w północnej lub południowej częśći Polski. 
+                        - Jak na odwrót, to we wschodniej lub zachodniej.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Wynik - mapa
+
+                        ![Mapa połączeń miast Polski](warsaw/connections.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Odległości do Warszawy
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Funkcja heurystyczna
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Algorytm
+
+                            def astar_search(start, end, distances, heuristic, h_weight=0.5, init_state=Condition.NONE):
+                                d_weight = 1.0 - h_weight
+                                size, _ = distances.shape
+                                
+                                visited = np.zeros(size, dtype=np.int32)
+                                queue = [(0, start, 0, init_state, [start])]
+                                
+                                while queue:
+                                    _, current, current_distance, state, path = hq.heappop(queue)
+                                    
+                                    visited[current] += 1
+                                    
+                                    if current == end:
+                                        return (path, visited)
+                                    
+                                    for neighbor in range(size):
+                                        edge_distance = distances[current, neighbor]
+                                        if edge_distance == 0:
+                                            continue
+                                        if neighbor in path:
+                                            continue
+                                        if neighbor == end and state != Condition.ALL:
+                                            continue
+                                            
+                                        new_state = state | get_condition_flag(state, current, neighbor, path)
+                                        
+                                        path_distance = current_distance + edge_distance
+                                        h_score = heuristic(neighbor, new_state)
+                                        f_score = d_weight * path_distance + h_weight * h_score
+                                        
+                                        new_path = path[:]
+                                        new_path.append(neighbor)
+                                        
+                                        hq.heappush(queue, (f_score, neighbor, path_distance, new_state, new_path))
+                                            
+                                return (None, visited)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Wyniki - greedy search
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Wyniki - Djikstra
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Wyniki - A star
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Wyniki - podsumowanie
+                    </script>
+                </section>
 			</div>
 		</div>
 
@@ -35,6 +168,7 @@
 
 		<script>
 			Reveal.initialize({
+				history: true,
                 anything: [ 
                     {
                         className: "visjs",  
