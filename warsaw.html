@@ -76,14 +76,14 @@
                         ## Inna część Polski
 
                         - Centrum Polski - N$51.9194^\circ$ E$19.1451^\circ$
-                        - Korzystając z _Geocoding API_ dla każdego miasta uzyskałem współrzędne geograficzne.
+                        - Korzystając z _Geocoding API_, dla każdego miasta uzyskałem współrzędne geograficzne.
                         - Jeżeli $\Delta \lambda > \Delta \phi$, to miasto leży w północnej lub południowej częśći Polski. 
                         - Jak na odwrót, to we wschodniej lub zachodniej.
                     </script>
                 </section>
 				<section data-markdown>
                     <script type="text/template">
-                        ## Wynik - mapa
+                        ## Graf miast - mapa
 
                         ![Mapa połączeń miast Polski](warsaw/connections.png)
                     </script>
@@ -91,11 +91,25 @@
 				<section data-markdown>
                     <script type="text/template">
                         ## Odległości do Warszawy
+
+                        Rozwiązanie:
+
+                        - Korzystając z _Geocoding API_, dla każdego miasta uzyskałem współrzędne geograficzne.
+                        - Mając ich współrzędne, obliczyłem odległość w linii prostej do Warszawy. (_haversine formula_)
                     </script>
                 </section>
 				<section data-markdown>
                     <script type="text/template">
                         ## Funkcja heurystyczna
+
+                        Maksimum z:
+                        - Odległości do Warszawy.
+                        - Najmniejszej odległości do Warszawy przechodzącej przez miasto o populacji 400 000 
+                        - Najmniejszej odległości do Warszawy przechodzącej przez miasto w innej części Polski
+
+                        Ostatnie punkty tylko, gdy warunki są niespełnione.
+
+                        Wszystkie wyliczone wcześniej i zapisane.
                     </script>
                 </section>
 				<section data-markdown>
@@ -142,22 +156,37 @@
                 </section>
 				<section data-markdown>
                     <script type="text/template">
-                        ## Wyniki - greedy search
+                        ## Wyniki - A star
+
+                        ![Ścieżka z Przemyśla - Algorytm A-star](warsaw/astar.png)
                     </script>
                 </section>
 				<section data-markdown>
                     <script type="text/template">
                         ## Wyniki - Djikstra
+
+                        ![Ścieżka z Przemyśla - Algorytm Djikstra](warsaw/djikstra.png)
                     </script>
                 </section>
 				<section data-markdown>
                     <script type="text/template">
-                        ## Wyniki - A star
+                        ## Wyniki - Best-first
+
+                        ![Ścieżka z Przemyśla - Algorytm best-first](warsaw/best-first.png)
                     </script>
                 </section>
 				<section data-markdown>
                     <script type="text/template">
                         ## Wyniki - podsumowanie
+
+                        <small>
+                        <table>
+                            <tr><th>Wariant</th><th>Średnia długość ścieżki</th><th>Średnia liczba odwiedzin</th></tr>
+                            <tr><td>Best-first</td><td>7.21</td><td>50.25</td></tr>
+                            <tr><td>A star</td><td>6.69</td><td>5474.79</td></tr>
+                            <tr><td>Djikstra</td><td>6.69</td><td>5491.00</td></tr>
+                        </table>
+                        </small>
                     </script>
                 </section>
 			</div>
