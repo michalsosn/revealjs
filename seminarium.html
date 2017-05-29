@@ -1,0 +1,327 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>Rozpoznawanie mówcy zależne od tekstu</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<link rel="stylesheet" href="lib/css/vis.min.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Rozpoznawanie mówcy zależne od tekstu
+
+                        Promotor: dr inż. Bartłomiej Stasiak
+
+                        Dyplomant: inż. Michał Sośnicki
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Problem rozpoznawania mówcy
+
+                        - Identyfikacja - która z osób jest na nagraniu?
+                        - Weryfikacja - czy to ta osoba jest na nagraniu?
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Zależność od tekstu
+
+                        ![Dwa spektrogramy nagrań o tej samej treści](seminarium/two_spectrograms.png)
+                        Spektrogramy dwóch nagrań o tej samej treści
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Cele pracy
+
+                        - Stworzenie programu do rozpoznawania mówcy, wykorzystującego sieci neuronowe.
+                        - Porównanie jakości systemu względem istniejących rozwiązań.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Zbiór danych RedDots
+
+                        - 62 mówców (49 M, 13 F)
+                        - 24 zdania (10 wspólnych, 10 unikalnych, 2 wybrane, 2 dowolne)
+                        - 52 sesje (raz na tydzień, wiele osób ma mniej)
+
+                        Ustalone cztery scenariusze i sposoby oceny 
+                        (EER, minimum cost)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne
+                        
+                        - STFT (krótkoczasowa transformata Fouriera)
+                        - Spektrum mocy z każdego okna
+                        - Każde okno mnożymy przez bank filtrów. Wyniki filtracji 
+                          sumujemy i logarytmujemy 
+                        - DCT na każdym wektorze wykonujemy, bierzemy kilkanaście 
+                          pierwszych współczynników
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne - STFT
+
+                        ![Spektrogram sygnału](seminarium/stft.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne - bank filtrów
+
+                        ![Filtry o stałej szerokości w skali Mela](seminarium/filters.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne - bank filtrów
+
+                        ![Współczynniki po wymnożeniu](seminarium/bank_of_filters.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne - dct
+
+                        ![Współczynniki po wymnożeniu](seminarium/dct.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Współczynniki mel cepstralne - dct
+
+                        ![Współczynniki po wymnożeniu](seminarium/covariances.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dynamic time warping
+
+                        <table>
+                            <tr><th></th><th>A</th><th>B</th><th>B</th><th>X</th><th>C</th><th>Y</th><th>C</th></tr>
+                            <tr><th>A</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td></tr>
+                            <tr><th>B</th><td>1</td><td>0</td><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
+                            <tr><th>C</th><td>2</td><td>1</td><td>1</td><td>1</td><td>1</td><td>2</td><td>2</td></tr>
+                        </table>
+
+                        $g[i, j] = d(i, j) + min ( g[i, j - 1], \\ g[i - 1, j - 1], g[i - 1, j] )$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dynamic time warping
+
+                        $d(i, j)$ - u nas odległość między wektorami MFCC 
+
+                        ![Spektrogramy dwóch sygnałów](seminarium/two_mfccs.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dynamic time warping
+
+                        - Zapamiętujemy ciągi podane przy rejestracji.
+
+                        - Dla nowego ciągu sprawdzamy z użyciem DTW 
+                          do którego jest najbardziej podobny.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dynamic time warping
+
+                        ![Macierz omyłek dla DTW i MFCC](seminarium/dtw.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dyskretne modele Markowa
+
+                        Model matematyczny, w którym:
+
+                        System może przyjąć jeden z $N$ stanów
+                        $S = \\{ S_1, S_2, \dots, S_N \\}$
+
+                        Stan systemu w chwili t oznaczamy
+                        $q_t, t = 1, 2, \dots$.
+
+                        Rozkład stanu początkowego $q_1$ oznaczamy jako
+                        $\pi_i = P(q_1 = S_i)$.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dyskretne modele Markowa
+
+                        **Własność Markowa** - rozkład prawdopodobieństwa stanu łańcucha w następnym kroku zależy tylko od jego obecnego stanu
+
+                        **Jednorodność** - prawdopodobieństwa zmian stanu są niezależne od czasu
+
+                        $P(q\_t = S\_j | q\_{t - 1} = S\_i) = a\_{ij}$
+
+                        Przy tych ograniczeniach prawdopodobieństwa przejść można zapisać w formie macierzy $A$.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład
+
+                        Stany: $S_1$ deszczowo, $S_2$ pochmurnie, $S_3$ słonecznie
+
+                        $A = \begin{bmatrix} 0.4 & 0.3 & 0.3 \\\\ 0.2 & 0.6 & 0.2 \\\\ 0.1 & 0.1 & 0.8 \end{bmatrix}$
+
+                        $\pi = [0, 0, 1]$ (pierwszego dnia słonecznie)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład
+
+                        Jakie jest prawdopodobieństwo, że pogoda w kolejnych pięciu dniach będzie taka: $S\_3, S\_2, S\_2, S\_3, S\_1?$
+
+                        $P(S\_3, S\_2, S\_2, S\_3, S\_1 | (A, \pi))$
+                        $= \pi\_3 \cdot a\_{32} \cdot a\_{22} \cdot a\_{23} \cdot a\_{31}$
+                        $= 1 \cdot 0.1 \cdot 0.6 \cdot 0.2 \cdot 0.1$
+                        $= 0.0012$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryty model Markowa
+
+                        Rozszerzenie poprzedniego modelu
+                        <small>(Zbiór $N$ stanów $S$, stan w czasie $t$ $q_t$, macierz przejść $A$, rozkład stanu początkowego $\pi$)</small>
+
+                        Dodajemy zbiór $M$ obserwacji
+                        $V = {V_1, V_2, \dots, V_M}$.
+
+                        $o_t$ - obserwacja w chwili $t$
+
+                        Prawdopodobieństwo zaobserwowania $V_k$ w stanie $S_j$
+                        $b_j(k) = P(o_t = V_k | q_t = S_j)$
+                        $j = 1, \dots, N, k = 1, \dots, M$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Przykład
+
+                        Stany: $S_1$ deszczowo, $S_2$ pochmurnie, $S_3$ słonecznie
+                        Obserwacje: $O_1$ zimno, $O_2$ ciepło
+
+                        $B = \begin{bmatrix} 0.7 & 0.3 \\\\ 0.5 & 0.5 \\\\ 0.8 & 0.2 \end{bmatrix}$
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        - Obliczyć prawdopodobieństwo wystąpienia ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm w przód
+                        - Znaleźć najbardziej prawdopodobny ciąg stanów przy danym ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Viterbiego
+                        - Znaleźć parametry modelu $(A, B, \pi)$ maksymalizujące prawdopodobieństwo wygenerowania danego ciągu obserwacji $O_1, O_2, \dots, O_T$ - algorytm Bauma-Welcha
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        ### Nauka
+
+                        - Tworzymy $K$ ukrytych modeli Markowa, po jednym na słowo.
+                        - Dla każdego z nich dobieramy algorytmem Baum-Welcha parametry, maksymalizujące prawdopodobieństwo wystąpienia obserwacji z nagrania.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        ### Wykorzystanie
+
+                        - Bierzemy testowe nagranie.
+                        - Dla każdego z $K$ dopasowanych modeli liczymy algorytmem w przód prawdopodobieństwo wystąpienia ciągu obserwacji z nagrania.
+                        - Znajdujemy model, dla którego to prawdopodobieństwo jest największe.
+                        - Klasyfikujemy nagranie jako słowo, do którego wytrenowany został wybrany model.
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Ukryte modele Markowa
+
+                        ![Macierz omyłek dla GMMHMM i MFCC](seminarium/hmm.png)
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Dalsze plany
+
+                        Linear predictive coding, I-Vectors
+
+                        Long short-term memory
+                    </script>
+                </section>
+				<section data-markdown>
+                    <script type="text/template">
+                        ## Literatura
+
+                        - Pattern classification. Richard O. Duda
+                        - Signals and systems. Alan V. Oppenheim
+                        - Fundamentals of Speech Recognition. Lawrence Rabiner
+                        - Fundamentals of Speaker Recognition. Homayoon Beigi
+                    </script>
+                </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+			Reveal.initialize({
+				history: true,
+                anything: [
+                    {
+                        className: "visjs",
+                        defaults: { options: {} },
+                        initialize: (function(container, options) {
+                            container.network = new vis.Network(
+                                container, { nodes: new vis.DataSet(options.nodes), edges: new vis.DataSet(options.edges) }, options.options || {}
+                            );
+                        })
+                    },
+                ],
+				dependencies: [
+					{ src: 'plugin/markdown/marked.js' },
+					{ src: 'plugin/markdown/markdown.js' },
+					{ src: 'plugin/notes/notes.js', async: true },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/math/math.js', async: true, mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js' },
+                    { src: 'plugin/anything/anything.js' },
+                    { src: 'lib/js/vis.min.js' },
+				]
+			});
+		</script>
+	</body>
+</html>
